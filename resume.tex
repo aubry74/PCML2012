@@ -27,12 +27,12 @@
 \newlength{\secskip}
 \setlength{\secskip}{0.5\baselineskip}
 \renewcommand{\section}[1]{
-  \vspace{\secskip}
-  \hrule\vspace{.3em}
+  %\vspace{\secskip}
+  \hrule\vspace{.1em}
   \textbf{#1}
-  \vspace{.3em}
+  %\vspace{.3em}
   \hrule
-  \vspace{\secskip}
+  %\vspace{\secskip}
 }
 
 %% AMSMath operators
@@ -52,7 +52,7 @@
 {\tiny Pattern Classification and Machine Learning}
 \section{Linear Classification}
 \paragraph{Perceptron Alg.}
-! Work for linearly separable D !
+! Work for linearly separable D ! Not linearly separable : map to higher dim feature space, in which it is linearly separable. Normalize datapoints is good. 
 Terminates after no more than $1/\gamma^2$ updates, where 
 
 $\gamma = \min_{i=1,\dots,n} t_i\vec{w}_*^T\vec{\tilde
@@ -61,7 +61,7 @@ $\gamma = \min_{i=1,\dots,n} t_i\vec{w}_*^T\vec{\tilde
 Normalize features $\phi_i \rightarrow \tilde{\phi_i}$  !
 
 Update rule (when misclassified $t_i\vec{w}^{T} \vec {\tilde{\phi_i}} \leq 0$): $\vec{w} \leftarrow \vec{w} +
-t_i\vec{\tilde{\phi_i}}$
+t_i\vec{\tilde{\phi_i}}$ until $t_i\vec{w}^{T} \vec {\tilde{\phi_i}} > 0$ for all i
 
 \paragraph{Stochastic Gradient Descent}
 $\vec{w}_{k+1} = \vec{w}_k - \eta \nabla_{\vec w}E_i(\vec{w}_k)$
@@ -78,6 +78,10 @@ $\vec{w}_{k+1} = \vec{w}_k - \eta \nabla_{\vec w}E_i(\vec{w}_k)$
 = \vec\Phi^T( \underbrace{\vec \Phi \vec w - \vec t}_{residual}) \]
 
 \section{Multi-Layer Perceptron}
+Overfitting : Split data, early stopping.
+Parameters : w and b. Layers : Do not count entry but count output.
+Error function : not good if not bounded below, not good ig grow too fast for large residuals.
+Momentum : prevent zig zag, allow higher learning rates.
 \paragraph{Forward pass}
 \[a_q^{l} = (\vec w_q^{(l)})^T\vec z^{(l-1)}+b_q^{(l)}\]
 \[z_q^{(l)}=g(a_q^{(l)})\text{, }q=1,..,h_l\]
@@ -97,6 +101,12 @@ For b: keep residual only ! (i.e $\vec x = 1$)
 $\eta$ = learning rate e.g. $1/k$, $\mu$ = momentum term
 
 \section{Linear Regression. LSE}
+$E(a,b)=\frac{1}{2} \sum_{i=1}^n (y(x_i)-t_i)^2$
+$\frac{\partial E}{\partial a} = \sum_i (ax_i+b-t_i)x_i=n(a\langle x^2 \rangle + b \langle x \rangle - \langle tx \rangle )$
+$\frac{\partial E}{\partial b} = \sum_i (ax_i+b-t_i)=n(a\langle x \rangle + b - \langle t \rangle )$
+$a_*=\frac{\langle tx \rangle - \langle t \rangle \langle x \rangle}{\langle x^2 \rangle - \langle x \rangle ^2}$
+$b_*=a_* \langle x \rangle + \langle t \rangle$
+Overfit : add tikhonov regularizer
 \paragraph{Univariate Linear Regression}
 $\langle x \rangle = n^{-1} \sum_i x_i $. Similar for $t, tx, x^2$
 \[y_i = wx_i + b \]
@@ -108,17 +118,19 @@ $ \vec{(\Phi}^{T}\vec{\Phi) w = \Phi}^{T} \vec{t}$
 
 \section{Probability. Decision Theory}
 \paragraph{Probability}
+Independence : $p(a,b)=p(a)p(b)$
 $E[X] = E[E[X|Y]]$ \\
 Sum rule: $P(X) = \sum_Y P(X,Y)$\\
 Product rule: $P(X,Y) = P(X|Y)P(Y)$
 Bayes $P(B|F) = \frac{P(F|B)P(B)}{P(F)}$ \\
 $Var(t) = E[Var(t|x)] + Var(E[t|x])$
-\paragraph{Bayes-Optimal Classifier}
+\paragraph{Bayes-Optimal Classifier} Do the best choice.
 \[f^*(\vec x) = \argmax_{t \in \tau} \underbrace{P(t|\vec x)}_{p(\vec x|t) P(t)}\]
 Bayes error: $R = P\{f(x) \neq t\}$
 \[ R^* = R(f^*) = 1 - \E \left [ \max_{k\in\tau} P(t = k | \vec x) \right ] \]
 Optimal discriminant:
-\[y^*(x) = \log \frac{p(\vec{x}|t=1)}{p(\vec{x}|t=0)} + \log \frac{P(t=1)}{P(t=0)} > 0\]
+\[y^*(x) = \log \frac{p(\vec{x}|t=1)}{p(\vec{x}|t=0)} + \log \frac{P(t=1)}{P(t=0)} > 0 \rightarrow f^*=0\]
+Bayes error : when the classifier is wrong.
 \paragraph{Bayes under Loss function}
 Risk: $ R(f) = \E \left [ L(f(\vec x), t) \right ]$
 Opt. Classifier:
@@ -126,6 +138,7 @@ Opt. Classifier:
 \[ R^* = \E \left [ \min_{j\in\tau} \sum_{k \in \tau} L(j,k) P(t = k | \vec x) \right ] \]
 
 \section{Probab. Models. Max. Likelihood}
+Likelihood function : $\prod_{i=1}^n p(x_i|\gamma)$, derive using $\bar{x} = n^{-1}\sum_i x_i$, $p_{mixture}(x) = \sum_{k=1}^{blu} P(\omega_k) P(x|\gamma_k)$
 \paragraph{MLE} $\hat{p}_1 = \argmax_{p_1 \in [0,1]}P(D|p_1)$ Maximize
 $\log P(D|p_1) :  \frac{d \log P(D|p_1)}{dp_1} = 0$ or minimize $-\log
 P(D|p_1)$
@@ -134,8 +147,8 @@ P(D|p_1)$
 Multivariate $N(\vec{x}|\vec{\mu},\vec{\Sigma}) =$
 \[|2\pi\vec{\Sigma}|^{-1/2} e^{-\frac{1}{2}(\vec{x}-\vec{\mu})^T\vec{\Sigma}^{-1}(\vec{x}-\vec{\mu})}\]
 \paragraph{Covariance}
-$$Cov(\vec x, \vec y) = \E[\vec x \vec y ^ T] - \E[\vec x]E[\vec y]$$
-$$Cov[\vec A \vec x] = \vec A Cov[\vec x] \vec A^T$$
+$Cov(\vec x, \vec y) = \E[\vec x \vec y ^ T] - \E[\vec x]E[\vec y]$,
+$Cov[\vec A \vec x] = \vec A Cov[\vec x] \vec A^T$,
 Sample 
 \[\vec{S} = \frac{1}{n} \sum_{i=1}^n (\vec{x_i - \bar{x}})(\vec{x_i - \bar{x}})^T=\frac{1}{n}\vec{X}^T\vec{X}\] if $\bar{x} = \frac{1}{n} \sum_{i=1}^nx_i = 0$
 \paragraph{Correlation}
@@ -150,6 +163,9 @@ Sample
 \[y_k^*(\vec{x}) = -\frac{1}{2}||\vec{x}-\vec{\mu}_k||^2 + \log P(t=k) + C\]
 
 \paragraph{Naive Bayes Classifier}
+$\hat{P}(\vec x | t=k)\hat{P}(t=k) = (\prod_{m=1}^M (\hat{p}^{(k)}_m)^{\phi_m(\vec x)}(1-\hat{p}^{(k)}_m)^{1-\phi_m(\vec x)})\frac{n_k}{n}$\\
+$\hat{p}_m^{(k)}=\frac{\sum_{i=1}^n I_{\{t_i=k\}} \phi_m(\vec{x}_i)}{n_k}
+$
 \[ P(\vec x | N,t=k) = \prod_{m=1}^M \left ( p_m^{(k)} \right
 )^{\phi_m(\vec x)} \]
 with $\phi_m(\vec x) = \sum_{j=1}^N I_{\{x_j = m\}}$
@@ -171,20 +187,20 @@ Maximize Conditional Likelihood $p(\vec t|\vec w) = \prod_{i=1}^n p(t_i|y_i)$
 \paragraph{Conditional Likelihood Bridge}
 Likelihood $p(\vec t|\vec \theta) \overbrace{\longrightarrow}^ {-log} E(t,\theta)$ Loss function
 \paragraph{Logistic regression} $P(t|y) = \sigma(ty)$
-\begin{align*}
- E_{log}(\vec w) &= - \log P(\vec t | \vec w)\\
- &= \sum\nolimits_{i=1}^n \log \left (1 + e^{-t_iy_i} \right)\\
- &= \sum\nolimits_{i=1}^n -\log \sigma (t_iy_i)
-\end{align*}
+$
+ E_{log}(\vec w) = - \log P(\vec t | \vec w)\\
+ = \sum\nolimits_{i=1}^n \log \left (1 + e^{-t_iy_i} \right)\\
+ = \sum\nolimits_{i=1}^n -\log \sigma (t_iy_i)
+$
 \paragraph{Generative Modeling}
-\[p(\vec{x},t|\vec{\theta}) = p(\vec{x}|t,\vec{\theta})P(t|\vec{\theta})\]
+$p(\vec{x},t|\vec{\theta}) = p(\vec{x}|t,\vec{\theta})P(t|\vec{\theta})$
 joint max. likeli. $max_{\theta} \prod_{i=1}^n p(\vec{x_i},t_i|\vec{\theta})$ 
 
 \paragraph{Discriminative Modeling}
-\[P(t|\vec{x,\theta}) \rightarrow max_\theta \prod_{i=1}^n P(t_i|\vec{x_i,\theta)}\]
+$P(t|\vec{x,\theta}) \rightarrow max_\theta \prod_{i=1}^n P(t_i|\vec{x_i,\theta)}$
 conditional maximum likelihood
 \paragraph{Multiway logistic Regression}
-\[P(t=k|\vec{x}) = \frac{e^{y_k^*(\vec{x})}}{\sum_{\tilde{k}}e^{y_{\tilde{k}}^*(\vec{x})}} = \sigma_k(\vec{y}^*(\vec{x))}\]
+$P(t=k|\vec{x}) = \frac{e^{y_k^*(\vec{x})}}{\sum_{\tilde{k}}e^{y_{\tilde{k}}^*(\vec{x})}} = \sigma_k(\vec{y}^*(\vec{x))}$
 Soft-max mapping $\sigma_k(\vec{\nu}) = e^{\nu_k - lsexp(\vec{\nu})}$ with $lsexp(\vec{\nu}) = \log \sum_{\tilde{k}}e^{\vec{\nu}_{\tilde{k}}}$
 $\nabla_v lsexp(\vec v) = \vec \sigma(\vec v)$
 
@@ -196,7 +212,7 @@ Polynomial: $K(\vec x,\vec x') = (\vec x^T\vec x')^r$
 \[\max_{w,b} \left\{ \gamma_D(\vec{w},b) = \min_{i=1..n} \frac{t_i(\vec{w}^T \phi(\vec{x_i}) + b)}{||\vec{w}||} \right\}\]
 ! D linearly separable ! \\
 Hard margin (convex optimization problem): $\min_{w,b} \frac{1}{2}||\vec w||^2$ subj. to $t_i(\vec w^T \vec{\phi(x_i)} + b) \geq 1, i=1..n$
-\paragraph{Soft margin SVM}
+\paragraph{Soft margin SVM} $w^2$ regul term
 \[\min_{w,b,\xi} \frac{1}{2}||\vec{w}||^2 + C \sum_{i=1}^n \xi_i\]
 subj. to $t_i(\vec{w}^T \vec{\phi(x_i)} + b) \geq 1-\xi_i,~ \xi_i \geq 0$
 \[\equiv \min_{w,b} \frac{1}{2C}||\vec{w}||^2 + \underbrace{\sum_{i=1}^n [1-t_iy_i]_+}_{E_{svm}(w,b)}\]
@@ -236,8 +252,11 @@ $\hat{R}_{CV}^{(M)}(D) = \frac{1}{n}\sum_{i=1}^n L(\hat{y}_\nu^{-m(i)},t_i)$
 
 \section{Dimensionality Reduction}
 \paragraph{PCA}
+First principal component direction $\vec v$ is the unit norm eigenvalue corresponding to the largest eigenvalue of S. Symmetry : empirical mean 0, can take half of the points.
+$\vec S = \frac{1}{n} \sum_{i=1}^n (\vec{x}_i - \bar{\vec x})(\vec{x}_i - \bar{\vec x})^T$
+$\bar{\vec x} = \frac{1}{n} \sum_{i=1}^n \vec x_i$,
 $\vec{z = U^T x} ~with~ U^TU=I_{M \times M}$
-\[\vec{u}_* = \argmax_{\vec{u}:||\vec{u}||=1} \vec{u}^T Cov(\vec{x}) \vec{u}\]
+\[\vec{u}_* = \argmax_{\vec{u}:||\vec{u}||=1} \vec{u}^T \vec S \vec{u}\]
 PC directions = eigendirections of $Cov(\vec{x})$
 \textbf{Goals}:maximize $Cov(z)$ / Minimize $E[||\hat{x}-x||^2]$ / decorrelate components of $\vec{z}$ \\
 ! PCA doesn't depends on labels t !
@@ -258,7 +277,7 @@ Iterate until assignment no longer change. Assignment step: \\
 $||\vec{x_i} - \mu_{t_i}|| = \min_{k=1..K} || \vec{x_i} - \mu_{k}||$\\
 Update prototypes:\\$\mu_k = n_k^{-1} \sum_{i=1}^n I_{\{t_i=k\}}\vec{x_i}$
 \[\phi(\vec{t,\mu}) = \sum_{i=1}^n\sum_{k=1}^K I_{\{t_i=k\}} || \vec{x_i} - \vec{\mu_k} || ^2\]
-\paragraph{Gaussian Mixture Model}
+\paragraph{Gaussian Mixture Model} Soft assignement : assign to clusters with probabilities. If one mixture component assigned to a single central datapoint, its variance will shrink to small values : EM diverge with lare likelihood values.
 \begin{align*}
 p(\vec{x}) = \sum_{k=1}^K p(\vec{x}|t=k) P(t=k) \\
 =  \sum_{k=1}^K N(\vec{x}|\vec{\mu_k},\Sigma_k)P(t=k)
@@ -275,17 +294,17 @@ E(\vec{\theta};\{Q_i\}) = \sum_{i=1}^n E_i(\vec{\theta};Q_i) \\=
 \end{align*}
 Perfect for missing data !
 Hint:
-\begin{align*}
-\frac{\partial \log p(x_i)}{\partial h_k} = \frac{1}{p(x_i)}\frac{\partial p(x_i|h_k)P(h_k)}{\partial h_k} \\
-= \frac{p(x_i|h_k)P(h_k)}{p(x_i)}\frac{\partial \log p(x_i|h_k)}{\partial h_k} \\
-= P(h_k|x_i) \frac{\partial \log p(x_i|h_k)}{\partial h_k}
-\end{align*}
+$
+\frac{\partial \log p(x_i)}{\partial \gamma_k} = \frac{1}{p(x_i)}\frac{\partial p(x_i|\omega_k)P(\omega_k)}{\partial \gamma_k} \\
+= \frac{p(x_i|\omega_k)P(\omega_k)}{p(x_i)}\frac{\partial \log p(x_i|\omega_k)}{\partial \gamma_k} \\
+= P(\omega_k|x_i) \frac{\partial \log p(x_i|\omega_k)}{\partial \gamma_k}
+$ Then insert derivative already computed (right part)
 \section{Beautiful Maths} 
 \paragraph{Cauchy-Schwarz}
  $|\vec a ^T \vec b|\leq \| \vec a \| \| \vec b \|$
 \paragraph{Logistic function}
-$\sigma(v) = \frac{1}{1+e^{-v}}$
-$$\sigma'(v) = \sigma(v)\sigma(-v) = \sigma(v)(1-\sigma(v))$$
+$\sigma(v) = \frac{1}{1+e^{-v}}$,
+$\sigma'(v) = \sigma(v)\sigma(-v) = \sigma(v)(1-\sigma(v))$
 \paragraph{tanh}
 $g(a)=\tanh(a)=\frac{e^a-e^{-a}}{e^a + e^{-a}}$
 $$g(a)'=1 - g(a)^2$$
@@ -293,7 +312,7 @@ $$g(a)'=1 - g(a)^2$$
 $tr(\vec{A}) = \sum_{j=1}^{d}a_{jj} = \sum_{j=1}^d \lambda_j$
 \[\vec{x}^T \vec{A} \vec{x} = tr(\vec{x}^T \vec{A} \vec{x}) = tr(\vec{A} \vec{xx}^T)\]
 \paragraph{Eigs}
-$\vec{Av} = \lambda \vec{v}, ~\vec{A} = \vec{U \Lambda U^{-1}}$\\
+$\vec{Av} = \lambda \vec{v}, ~\vec{A} = \vec{U \Lambda U^{-1}}, |A-\lambda I|=0$\\
 $|A| = \prod_{j=1}^d \lambda_j$
 \paragraph{Positive semi-definite matrix} $\vec A \in \Re^ {d\times d}$ symmetric:
 $\vec v^T \vec A \vec v \geq 0 ~ \forall \vec v \in \Re^d, \vec v\neq 0$
@@ -307,7 +326,5 @@ $[x]_+ = max(x,0)$
 \[D(\vec{q}||\vec{p}) = \sum_{l=1}^L q_l \log(\frac{q_l}{p_l}) \geq 0\]
 %\appendix{Lagrange Multipliers and Lagrangian Duality}
 \line(1,0){140} \\
-\tiny
-PCML2012 Cheat sheet kindly written by Christopher Chiche, Alex Chap, Tobias Schlatter, Florian Savoy, Marc Zimmerman and Julien Perrochet. Copyleft EPFL 2012 
 \end{multicols}
 \end{document}
